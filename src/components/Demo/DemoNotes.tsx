@@ -1,5 +1,5 @@
 import { FC } from "react";
-import Button from "./Generic/Button";
+import Button from "../Generic/Button";
 
 const DemoNotes: FC = () => {
   const notes = [

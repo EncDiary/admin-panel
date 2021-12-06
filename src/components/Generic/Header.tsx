@@ -1,5 +1,6 @@
 import { FC } from "react";
 import { Link, NavLink } from "react-router-dom";
+import Button from "./Button";
 
 interface HeaderLinkProps {
   to: string;
@@ -30,6 +31,7 @@ const Header: FC = () => {
             <HeaderLink to="/demo" content="Demo" />
           </div>
         </div>
+        <Button content="Logout" theme="light" isOutline />
       </div>
     </nav>
   );
