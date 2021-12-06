@@ -1,6 +1,6 @@
 import { FC, FormEvent } from "react";
 import { useFormState } from "../../hooks/useFormState";
-import Button from "../Generic/Button";
+import { WideButton } from "../Generic/Button";
 import FloatingInput from "../Generic/Input/FloatingInput";
 import "./Login.scss";
 
@@ -35,7 +35,7 @@ const Login: FC = () => {
           onChange={changeFormValues}
         />
 
-        <Button content="Login" />
+        <WideButton content="Login" />
       </form>
     </main>
   );
