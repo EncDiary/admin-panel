@@ -2,9 +2,10 @@ import { FC } from "react";
 
 interface ButtonProps {
   content: string;
-  theme?: "primary" | "success" | "danger" | "light";
+  theme?: "primary" | "success" | "danger" | "light" | "secondary";
   size?: "sm" | "lg";
   isOutline?: boolean;
+  onClick?: () => void;
 }
 
 export const WideButton: FC<ButtonProps> = ({ content, theme = "primary" }) => {
@@ -20,6 +21,7 @@ const Button: FC<ButtonProps> = ({
   theme = "primary",
   size,
   isOutline,
+  onClick,
 }) => {
   return (
     <button
@@ -27,6 +29,7 @@ const Button: FC<ButtonProps> = ({
         isOutline ? "outline-" : ""
       }${theme}`}
       type="submit"
+      onClick={onClick}
     >
       {content}
     </button>
