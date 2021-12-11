@@ -7,7 +7,7 @@ const DemoNoteList: FC = observer(() => {
   const notes = store.demo.notes;
 
   return (
-    <div className="demo-notes">
+    <div>
       {notes.map((note) => {
         return <DemoNoteItem note={note} key={note.id} />;
       })}

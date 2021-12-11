@@ -3,3 +3,9 @@ export interface INote {
   text: string;
   datetime: number;
 }
+
+export interface ICipherNote {
+  ciphertext: string;
+  iv: string;
+  salt: string;
+}

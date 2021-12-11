@@ -1,6 +1,7 @@
-import { FC } from "react";
-import { Link, NavLink } from "react-router-dom";
-import Button from "./Button";
+import { FC, useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import { Button, Collapse, Nav, Navbar, NavbarToggler } from "reactstrap";
+import store from "../../store";
 
 interface HeaderLinkProps {
   to: string;
@@ -8,32 +9,32 @@ interface HeaderLinkProps {
 }
 
 const Header: FC = () => {
+  const navigate = useNavigate();
+
+  const logoutHandler = () => {
+    store.user.unsetToken();
+    store.demo.clearNotes();
+    navigate("/login");
+  };
+
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <nav className="navbar navbar-expand-lg navbar-dark bg-dark mb-3">
-      <div className="container-fluid">
-        <Link className="navbar-brand" to="/dashboard">
-          EncDiary
-        </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarNavAltMarkup"
-          aria-controls="navbarNavAltMarkup"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-        <div className="collapse navbar-collapse" id="navbarNavAltMarkup">
-          <div className="navbar-nav">
-            <HeaderLink to="/dashboard" content="Dashboard" />
-            <HeaderLink to="/demo" content="Demo" />
-          </div>
-        </div>
-        <Button content="Logout" theme="light" isOutline />
-      </div>
-    </nav>
+    <Navbar color="dark" dark expand="md" fixed="" light className="mb-3">
+      <Link className="navbar-brand" to="/dashboard">
+        EncDiary
+      </Link>
+      <NavbarToggler onClick={() => setIsOpen(!isOpen)} />
+      <Collapse navbar className="justify-content-between" isOpen={isOpen}>
+        <Nav navbar>
+          <HeaderLink to="/dashboard" content="Dashboard" />
+          <HeaderLink to="/demo" content="Demo" />
+        </Nav>
+        <Button color="light" outline onClick={logoutHandler}>
+          Logout
+        </Button>
+      </Collapse>
+    </Navbar>
   );
 };
 
