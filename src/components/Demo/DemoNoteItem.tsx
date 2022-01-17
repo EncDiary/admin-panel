@@ -17,6 +17,8 @@ import { getDotSeparatedDate, getTime } from "../../modules/datetime";
 import { SetEditor } from "../Generic/Editor";
 import { deleteNoteRequest, editNoteRequest } from "../../modules/request/demo";
 import { aesEncrypt } from "../../modules/crypto";
+import { useOutletContext } from "react-router-dom";
+import { IAccount } from "../../types/user";
 
 interface DemoNoteItemProps {
   note: INote;
@@ -25,8 +27,12 @@ interface DemoNoteItemProps {
 const DemoNoteItem: FC<DemoNoteItemProps> = ({ note }) => {
   const [isOpen, setIsOpen] = useState(false);
   const editor = SetEditor(note?.text || "");
-  const token = store.user.token;
-  if (!token) return <></>;
+  const account: IAccount = useOutletContext();
+
+  const closeModal = () => {
+    editor?.commands.setContent(note?.text || "");
+    setIsOpen(false);
+  };
 
   const editHandler = async () => {
     const text = editor?.getHTML() || "";
@@ -37,16 +43,16 @@ const DemoNoteItem: FC<DemoNoteItemProps> = ({ note }) => {
     }
 
     if (text === note.text) {
-      setIsOpen(false);
+      closeModal();
       return;
     }
 
     const cipherNote = aesEncrypt(text);
-    const serverResponse = await editNoteRequest(note.id, cipherNote, token);
+    const serverResponse = await editNoteRequest(note.id, cipherNote, account);
     if (!serverResponse) return;
 
     store.demo.edit(note.id, text);
-    setIsOpen(false);
+    closeModal();
   };
 
   const confirmDeleteHandler = async () => {
@@ -55,7 +61,7 @@ const DemoNoteItem: FC<DemoNoteItemProps> = ({ note }) => {
       sliceText(note.text.replace(/<[^>]+>/g, ""))
     );
     if (result.isConfirmed) {
-      const serverResponse = await deleteNoteRequest(note.id, token);
+      const serverResponse = await deleteNoteRequest(note.id, account);
       if (!serverResponse) return;
       store.demo.delete(note.id);
     }
@@ -68,7 +74,7 @@ const DemoNoteItem: FC<DemoNoteItemProps> = ({ note }) => {
         <CardSubtitle className="mb-2 text-muted" tag="h6">
           {getTime(note.datetime)}
         </CardSubtitle>
-        <CardText>{parse(note.text)}</CardText>
+        <CardText tag="div">{parse(note.text)}</CardText>
         <div className="d-flex gap-3 mt-3">
           <Button color="success" onClick={() => setIsOpen(true)}>
             Edit
@@ -79,7 +85,7 @@ const DemoNoteItem: FC<DemoNoteItemProps> = ({ note }) => {
         </div>
         <DemoNoteSetter
           isOpen={isOpen}
-          onClose={() => setIsOpen(false)}
+          onClose={closeModal}
           headerText="Editing the note"
           onSubmit={editHandler}
           editor={editor}

@@ -12,7 +12,7 @@ const Header: FC = () => {
   const navigate = useNavigate();
 
   const logoutHandler = () => {
-    store.user.unsetToken();
+    store.user.unsetAccount();
     store.demo.clearNotes();
     navigate("/login");
   };

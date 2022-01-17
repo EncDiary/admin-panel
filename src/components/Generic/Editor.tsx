@@ -63,11 +63,11 @@ const MenuBar: FC<{ editor: Editor | null }> = ({ editor }) => {
         isEnabled={editor.isActive("orderedList")}
       />
       <MenuBarButton
-        text="Unord.List"
+        text="Undo"
         onClick={() => editor.chain().focus().undo().run()}
       />
       <MenuBarButton
-        text="Ord.List"
+        text="Redo"
         onClick={() => editor.chain().focus().redo().run()}
       />
     </div>

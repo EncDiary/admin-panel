@@ -1,23 +1,22 @@
-import { FC, useEffect } from "react";
-import { Outlet, useNavigate } from "react-router";
+import { FC } from "react";
+import { Navigate, Outlet } from "react-router";
 import { Container } from "reactstrap";
-import { checkJwtToken } from "../../modules/jwt";
+import { updateJwtToken } from "../../modules/jwt";
 import store from "../../store";
 import Header from "../Generic/Header";
 
 const AdminTemplate: FC = () => {
-  const token = store.user.token;
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    checkJwtToken(token, navigate);
-  });
+  const account = store.user.account;
+  if (!account) {
+    return <Navigate to="/login" />;
+  }
+  updateJwtToken(account);
 
   return (
     <>
       <Header />
       <Container style={{ maxWidth: 800 }}>
-        <Outlet />
+        <Outlet context={account} />
       </Container>
     </>
   );

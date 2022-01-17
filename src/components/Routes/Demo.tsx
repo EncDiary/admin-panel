@@ -1,10 +1,12 @@
 import { FC, useEffect, useState } from "react";
+import { useOutletContext } from "react-router-dom";
 import { Button } from "reactstrap";
 import { aesDecrypt, aesEncrypt } from "../../modules/crypto";
 import { createNoteRequest, getNotesRequest } from "../../modules/request/demo";
 import { errorAlert } from "../../modules/sweetalert";
 import store from "../../store";
 import { INote } from "../../types/demo";
+import { IAccount } from "../../types/user";
 import DemoNoteList from "../Demo/DemoNoteList";
 import DemoNoteSetter from "../Demo/DemoNoteSetter";
 import { SetEditor } from "../Generic/Editor";
@@ -13,13 +15,16 @@ import H1 from "../Generic/Title";
 const Demo: FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const editor = SetEditor("");
+  const account: IAccount = useOutletContext();
 
-  const token = store.user.token;
+  const closeModal = () => {
+    editor?.commands.clearContent();
+    setIsOpen(false);
+  };
 
   useEffect(() => {
-    if (!token) return;
     const fetchNotes = async () => {
-      const serverResponse = await getNotesRequest(token || "");
+      const serverResponse = await getNotesRequest(account);
       if (!serverResponse) return;
 
       const notes: INote[] = [];
@@ -38,9 +43,7 @@ const Demo: FC = () => {
       store.demo.setNotes(notes);
     };
     fetchNotes();
-  }, [token]);
-
-  if (!token) return <></>;
+  }, [account]);
 
   const createHandler = async () => {
     const text = editor?.getHTML() || "";
@@ -51,7 +54,7 @@ const Demo: FC = () => {
     }
 
     const cipherNote = aesEncrypt(text);
-    const serverResponse = await createNoteRequest(cipherNote, token);
+    const serverResponse = await createNoteRequest(cipherNote, account);
     if (!serverResponse) return;
 
     store.demo.create({
@@ -59,7 +62,7 @@ const Demo: FC = () => {
       text,
       datetime: serverResponse.data.datetime * 1000,
     });
-    setIsOpen(false);
+    closeModal();
   };
 
   return (
@@ -71,7 +74,7 @@ const Demo: FC = () => {
       <DemoNoteList />
       <DemoNoteSetter
         isOpen={isOpen}
-        onClose={() => setIsOpen(false)}
+        onClose={closeModal}
         onSubmit={createHandler}
         editor={editor}
         headerText="Creating a note"

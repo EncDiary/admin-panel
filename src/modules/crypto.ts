@@ -1,4 +1,5 @@
-import CryptoJS, { enc } from "crypto-js";
+import CryptoJS, { enc, SHA512 } from "crypto-js";
+import { JSEncrypt } from "jsencrypt";
 
 export const aesDecrypt = (
   encrypted: string,
@@ -43,6 +44,12 @@ const passphraseToKey = (salt: CryptoJS.lib.WordArray) => {
   return CryptoJS.PBKDF2(passphrase, salt, {
     hasher: CryptoJS.algo.SHA512,
     keySize: 64 / 8,
-    iterations: 1000,
+    iterations: 200,
   });
+};
+
+export const createSignature = (jse: JSEncrypt, message: string) => {
+  return (
+    jse.sign(message, (text: string) => SHA512(text).toString(), "sha512") || ""
+  );
 };

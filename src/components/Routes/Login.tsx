@@ -1,8 +1,14 @@
-import { FC, FormEvent } from "react";
+import JSEncrypt from "jsencrypt";
+import { FC, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button, Container, Form, FormGroup, Input, Label } from "reactstrap";
 import { useFormState } from "../../hooks/useFormState";
-import { authRequest } from "../../modules/request/admin";
+import { createSignature } from "../../modules/crypto";
+import { checkIsTokenValid } from "../../modules/jwt";
+import {
+  authRequest,
+  getAuthMessageRequest,
+} from "../../modules/request/admin";
 import store from "../../store";
 import H1 from "../Generic/Title";
 
@@ -11,19 +17,58 @@ const Login: FC = () => {
 
   const [formValues, changeFormValues] = useFormState({
     username: "",
-    password: "",
   });
+
+  const [fileText, setFileText] = useState<any>();
 
   const submitForm = async (event: FormEvent) => {
     event.preventDefault();
-    const serverResponse = await authRequest(
-      formValues.username,
-      formValues.password
-    );
-    if (!serverResponse) return;
 
-    store.user.setToken(serverResponse.data.token);
+    const serverGetMessageResponse = await getAuthMessageRequest(
+      formValues.username
+    );
+    if (!serverGetMessageResponse) return;
+
+    const jse = new JSEncrypt();
+    jse.setPrivateKey(fileText);
+
+    const signature = createSignature(
+      jse,
+      serverGetMessageResponse.data.message
+    );
+
+    const serverAuthResponse = await authRequest(
+      formValues.username,
+      signature
+    );
+    if (!serverAuthResponse) return;
+
+    const tokenData = checkIsTokenValid(serverAuthResponse.data.token);
+    if (!tokenData.isValid) return;
+
+    store.user.setAccount(
+      formValues.username.toLowerCase(),
+      jse,
+      serverAuthResponse.data.token,
+      tokenData.tokenExp
+    );
+
     navigate("/dashboard");
+  };
+
+  const readFile = (event: React.ChangeEvent<HTMLInputElement>) => {
+    event.persist();
+    const fileReader = new FileReader();
+    fileReader.onload = () => {
+      const fileText = fileReader.result;
+      if (typeof fileText === "string") {
+        setFileText(fileText);
+      }
+    };
+    const files = event.currentTarget.files;
+    if (files) {
+      fileReader.readAsText(files[0]);
+    }
   };
 
   return (
@@ -43,17 +88,11 @@ const Login: FC = () => {
             />
             <Label>Username</Label>
           </FormGroup>
-          <FormGroup floating>
-            <Input
-              name="password"
-              placeholder="Password"
-              type="password"
-              value={formValues.password}
-              onChange={changeFormValues}
-              autoComplete="off"
-            />
-            <Label>Password</Label>
+
+          <FormGroup>
+            <Input type="file" bsSize="lg" onChange={readFile} />
           </FormGroup>
+
           <Button block color="primary">
             Submit
           </Button>
