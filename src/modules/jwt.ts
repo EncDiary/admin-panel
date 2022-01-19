@@ -20,9 +20,10 @@ export const updateJwtToken = async (account: IAccount) => {
 
   const serverAuthResponse = await authRequest(account.username, signature);
   if (!serverAuthResponse) return;
-  if (!checkIsTokenValid(serverAuthResponse.data.token)) return;
+  const tokenData = checkIsTokenValid(serverAuthResponse.data.token);
+  if (!tokenData.isValid) return;
 
-  store.user.updateToken(serverAuthResponse.data.token);
+  store.user.updateToken(serverAuthResponse.data.token, tokenData.tokenExp);
 };
 
 export const checkIsTokenValid = (token?: string) => {

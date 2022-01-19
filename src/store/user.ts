@@ -21,9 +21,10 @@ class UserStore {
     this.account = { username, privKey, token, tokenExp };
   }
 
-  updateToken(token: string) {
+  updateToken(token: string, tokenExp: number) {
     if (this.account) {
       this.account.token = token;
+      this.account.tokenExp = tokenExp;
     }
   }
 

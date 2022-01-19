@@ -1,6 +1,6 @@
 import { FC, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
-import { Button } from "reactstrap";
+import { Button, Container } from "reactstrap";
 import { aesDecrypt, aesEncrypt } from "../../modules/crypto";
 import { createNoteRequest, getNotesRequest } from "../../modules/request/demo";
 import { errorAlert } from "../../modules/sweetalert";
@@ -66,7 +66,7 @@ const Demo: FC = () => {
   };
 
   return (
-    <>
+    <Container style={{ maxWidth: 800 }}>
       <H1>Demo</H1>
       <Button color="success" className="mb-3" onClick={() => setIsOpen(true)}>
         Create Note
@@ -79,7 +79,7 @@ const Demo: FC = () => {
         editor={editor}
         headerText="Creating a note"
       />
-    </>
+    </Container>
   );
 };
 
