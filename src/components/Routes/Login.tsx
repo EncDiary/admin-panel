@@ -74,7 +74,7 @@ const Login: FC = () => {
   return (
     <main style={{ padding: "100px 0" }}>
       <Container style={{ maxWidth: 400 }}>
-        <H1>EncDiary - Admin</H1>
+        <H1>EncDiary Admin</H1>
 
         <Form inline className="pt-3" onSubmit={submitForm}>
           <FormGroup floating>
