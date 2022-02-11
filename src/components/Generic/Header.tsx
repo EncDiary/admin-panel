@@ -1,6 +1,7 @@
 import { FC, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button, Collapse, Nav, Navbar, NavbarToggler } from "reactstrap";
+import { clearStore } from "../../modules/clearStore";
 import store from "../../store";
 
 interface HeaderLinkProps {
@@ -12,7 +13,7 @@ const Header: FC = () => {
   const navigate = useNavigate();
 
   const logoutHandler = () => {
-    store.user.unsetAccount();
+    clearStore();
     store.demo.clearNotes();
     navigate("/login");
   };

@@ -1,3 +1,4 @@
+import { enc } from "crypto-js";
 import JSEncrypt from "jsencrypt";
 import { FC, FormEvent, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -50,7 +51,8 @@ const Login: FC = () => {
       formValues.username.toLowerCase(),
       jse,
       serverAuthResponse.data.token,
-      tokenData.tokenExp
+      tokenData.tokenExp,
+      enc.Hex.parse(serverAuthResponse.data.salt)
     );
 
     navigate("/dashboard");

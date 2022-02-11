@@ -1,50 +1,41 @@
-import CryptoJS, { enc, SHA512 } from "crypto-js";
+import { AES, algo, enc, lib, PBKDF2, SHA512 } from "crypto-js";
 import { JSEncrypt } from "jsencrypt";
 
 export const aesDecrypt = (
   encrypted: string,
-  saltString: string,
+  key: lib.WordArray,
   ivString: string
 ) => {
-  const salt = CryptoJS.enc.Hex.parse(saltString);
-  const iv = CryptoJS.enc.Hex.parse(ivString);
-  const key = passphraseToKey(salt);
-
-  const decrypted = CryptoJS.AES.decrypt(encrypted, key, { iv });
+  const iv = enc.Hex.parse(ivString);
+  const decrypted = AES.decrypt(encrypted, key, { iv });
   try {
-    return decrypted.toString(CryptoJS.enc.Utf8);
+    return decrypted.toString(enc.Utf8);
   } catch (error) {
     return "";
   }
 };
 
-export const aesEncrypt = (plaintext: string) => {
-  const salt = generateRandomBytes(256);
-  const iv = generateRandomBytes(16);
-  const key = passphraseToKey(salt);
-
-  const encrypted = CryptoJS.AES.encrypt(plaintext, key, { iv });
-
+export const aesEncrypt = (plaintext: string, key: lib.WordArray) => {
+  const iv = generateRandomBytes(128 / 8);
+  const encrypted = AES.encrypt(plaintext, key, { iv });
   return {
-    ciphertext: CryptoJS.enc.Base64.stringify(encrypted.ciphertext),
-    salt: CryptoJS.enc.Hex.stringify(salt),
-    iv: CryptoJS.enc.Hex.stringify(iv),
+    ciphertext: enc.Base64.stringify(encrypted.ciphertext),
+    iv: enc.Hex.stringify(iv),
   };
 };
 
 const generateRandomBytes = (bytesNumber: number) => {
-  return CryptoJS.lib.WordArray.random(bytesNumber);
+  return lib.WordArray.random(bytesNumber);
 };
 
-const passphraseToKey = (salt: CryptoJS.lib.WordArray) => {
+export const passphraseToKey = (salt: lib.WordArray) => {
   const privateKeyBase64 = process.env.REACT_APP_DEMO_PRIVATE_KEY_BASE64 || "";
-
   const passphrase = enc.Base64.parse(privateKeyBase64);
 
-  return CryptoJS.PBKDF2(passphrase, salt, {
-    hasher: CryptoJS.algo.SHA512,
-    keySize: 64 / 8,
-    iterations: 200,
+  return PBKDF2(passphrase, salt, {
+    hasher: algo.SHA512,
+    keySize: 256 / 32,
+    iterations: 10000,
   });
 };
 

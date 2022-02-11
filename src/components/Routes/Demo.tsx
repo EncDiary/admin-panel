@@ -1,3 +1,4 @@
+import { enc } from "crypto-js";
 import { FC, useEffect, useState } from "react";
 import { useOutletContext } from "react-router-dom";
 import { Button, Container } from "reactstrap";
@@ -36,7 +37,11 @@ const Demo: FC = () => {
           iv: string;
           salt: string;
         }) => {
-          const text = aesDecrypt(note.ciphertext, note.salt, note.iv);
+          const text = aesDecrypt(
+            note.ciphertext,
+            store.crypto.findOrCalculateAesKey(note.salt),
+            note.iv
+          );
           notes.push({ id: note.id, text, datetime: +note.datetime * 1000 });
         }
       );
@@ -53,8 +58,18 @@ const Demo: FC = () => {
       return;
     }
 
-    const cipherNote = aesEncrypt(text);
-    const serverResponse = await createNoteRequest(cipherNote, account);
+    const cipherNote = aesEncrypt(
+      text,
+      store.crypto.findOrCalculateAesKey(enc.Hex.stringify(account.salt))
+    );
+    const serverResponse = await createNoteRequest(
+      {
+        ciphertext: cipherNote.ciphertext,
+        iv: cipherNote.iv,
+        salt: enc.Hex.stringify(account.salt),
+      },
+      account
+    );
     if (!serverResponse) return;
 
     store.demo.create({

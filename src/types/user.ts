@@ -1,3 +1,4 @@
+import { lib } from "crypto-js";
 import JSEncrypt from "jsencrypt";
 
 export interface IAccount {
@@ -5,4 +6,5 @@ export interface IAccount {
   privKey: JSEncrypt;
   token: string;
   tokenExp: number;
+  salt: lib.WordArray;
 }

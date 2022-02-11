@@ -19,6 +19,7 @@ import { deleteNoteRequest, editNoteRequest } from "../../modules/request/demo";
 import { aesEncrypt } from "../../modules/crypto";
 import { useOutletContext } from "react-router-dom";
 import { IAccount } from "../../types/user";
+import { enc } from "crypto-js";
 
 interface DemoNoteItemProps {
   note: INote;
@@ -47,8 +48,19 @@ const DemoNoteItem: FC<DemoNoteItemProps> = ({ note }) => {
       return;
     }
 
-    const cipherNote = aesEncrypt(text);
-    const serverResponse = await editNoteRequest(note.id, cipherNote, account);
+    const cipherNote = aesEncrypt(
+      text,
+      store.crypto.findOrCalculateAesKey(enc.Hex.stringify(account.salt))
+    );
+    const serverResponse = await editNoteRequest(
+      note.id,
+      {
+        ciphertext: cipherNote.ciphertext,
+        iv: cipherNote.iv,
+        salt: enc.Hex.stringify(account.salt),
+      },
+      account
+    );
     if (!serverResponse) return;
 
     store.demo.edit(note.id, text);
